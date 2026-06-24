@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart'; // 1. Added official provider package import
 import '../google_fonts.dart';
-import '../providers/app_state_provider.dart';
+import '../providers/app_state_provider.dart'; // Contains your updated StudyAppState
 import '../screens/login_screen.dart';
 import '../screens/focus_timer_screen.dart';
+import '../screens/settings_screen.dart';
 
 class CustomDrawer extends StatelessWidget {
   final int activeIndex;
@@ -16,15 +18,13 @@ class CustomDrawer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final state = AppStateProvider.of(context);
+    // 2. FIXED: Use the official provider extension context.watch<T>()
+    final state = context.watch<StudyAppState>();
     final theme = Theme.of(context);
     final colors = theme.colorScheme;
 
-    // Use theme colors directly instead of hardcoded values
     final drawerBg = theme.scaffoldBackgroundColor;
     final onDrawerSurface = colors.onSurface;
-    // final activeBg = colors.primary.withValues(alpha: 0.15);
-    // final activeText = colors.primary;
 
     return Drawer(
       backgroundColor: drawerBg,
@@ -202,12 +202,25 @@ class CustomDrawer extends StatelessWidget {
                 _buildSectionTitle(context, 'PREFERENCES'),
                 _buildDrawerItem(
                   context: context,
-                  icon: Icons.settings_outlined,
-                  title: 'Settings',
+                  icon: Icons.emoji_events_outlined,
+                  title: 'Rewards',
                   isActive: activeIndex == 3,
                   onTap: () {
                     Navigator.pop(context);
                     onNavigate(3);
+                  },
+                ),
+                _buildDrawerItem(
+                  context: context,
+                  icon: Icons.settings_outlined,
+                  title: 'Settings',
+                  isActive: false,
+                  onTap: () {
+                    Navigator.pop(context);
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (_) => const SettingsScreen()),
+                    );
                   },
                 ),
                 _buildDrawerItem(

@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../google_fonts.dart';
 import '../providers/app_state_provider.dart';
 import 'subject_detail_screen.dart';
 import 'task_detail_screen.dart';
 import 'calendar_screen.dart';
 import 'analytics_screen.dart';
-import 'settings_screen.dart';
+import 'rewards_screen.dart';
 
 import '../widgets/custom_drawer.dart';
 import '../widgets/animated_greeting.dart';
@@ -23,14 +24,20 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final state = AppStateProvider.of(context);
+    final state = context.watch<StudyAppState>();
     final isDark = state.isDarkMode;
 
     final List<Widget> screens = [
       const DashboardHomeTab(),
       const CalendarScreen(),
       const AnalyticsScreen(),
-      const SettingsScreen(),
+      RewardsScreen(
+        onContinue: () {
+          setState(() {
+            _selectedIndex = 0;
+          });
+        },
+      ),
     ];
 
     return Scaffold(
@@ -82,11 +89,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
           ),
           NavigationDestination(
             icon: Icon(
-              Icons.settings_outlined,
+              Icons.emoji_events_outlined,
               color: isDark ? Colors.white70 : Colors.black54,
             ),
-            selectedIcon: const Icon(Icons.settings, color: Color(0xFF6366F1)),
-            label: 'Settings',
+            selectedIcon: const Icon(Icons.emoji_events, color: Color(0xFF6366F1)),
+            label: 'Rewards',
           ),
         ],
       ),
@@ -99,7 +106,7 @@ class DashboardHomeTab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final state = AppStateProvider.of(context);
+    final state = context.watch<StudyAppState>();
     final isDark = state.isDarkMode;
     final primaryColor = const Color(0xFF6366F1);
     final accentColor = const Color(0xFF8B5CF6);
@@ -112,6 +119,10 @@ class DashboardHomeTab extends StatelessWidget {
           t.time.month == now.month &&
           t.time.day == now.day;
     }).toList();
+
+    final completedTasks = todayTasks.where((t) => t.isCompleted).length;
+    final totalTasks = todayTasks.length;
+    final progress = totalTasks > 0 ? completedTasks / totalTasks : 0.0;
 
     return Scaffold(
       backgroundColor: isDark
@@ -157,7 +168,7 @@ class DashboardHomeTab extends StatelessWidget {
               AnimatedUserName(userName: state.username ?? "", isDark: isDark),
               const SizedBox(height: 18),
 
-              // Overview Banner Card
+              // Overview Banner Card: Daily Tasks
               Container(
                 width: double.infinity,
                 padding: const EdgeInsets.all(24),
@@ -180,7 +191,7 @@ class DashboardHomeTab extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Study Momentum',
+                      'Daily Tasks',
                       style: GoogleFonts.plusJakartaSans(
                         fontSize: 14,
                         fontWeight: FontWeight.bold,
@@ -195,21 +206,36 @@ class DashboardHomeTab extends StatelessWidget {
                       textBaseline: TextBaseline.alphabetic,
                       children: [
                         Text(
-                          '${state.totalStudyMinutes.toInt()} mins',
+                          totalTasks > 0
+                              ? '$completedTasks of $totalTasks Completed'
+                              : 'No tasks for today',
                           style: GoogleFonts.plusJakartaSans(
-                            fontSize: 32,
+                            fontSize: 22,
                             fontWeight: FontWeight.bold,
                             color: Colors.white,
                           ),
                         ),
                         Text(
-                          'Keep it up!',
+                          totalTasks > 0
+                              ? '${(progress * 100).toInt()}% Done'
+                              : 'Rest up!',
                           style: GoogleFonts.inter(
                             fontSize: 14,
                             color: Colors.white70,
+                            fontWeight: FontWeight.w600,
                           ),
                         ),
                       ],
+                    ),
+                    const SizedBox(height: 16),
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(8),
+                      child: LinearProgressIndicator(
+                        value: totalTasks > 0 ? progress : 0.0,
+                        minHeight: 8,
+                        backgroundColor: Colors.white.withValues(alpha: 0.2),
+                        valueColor: const AlwaysStoppedAnimation<Color>(Colors.white),
+                      ),
                     ),
                   ],
                 ),
@@ -504,15 +530,26 @@ class DashboardHomeTab extends StatelessWidget {
                               ),
                             ),
                             PopupMenuButton<String>(
-                              icon: Icon(Icons.more_vert, color: isDark ? Colors.white54 : Colors.black45, size: 20),
+                              icon: Icon(
+                                Icons.more_vert,
+                                color: isDark ? Colors.white54 : Colors.black45,
+                                size: 20,
+                              ),
                               padding: EdgeInsets.zero,
                               onSelected: (val) {
-                                if (val == 'edit') showEditTaskSheet(context, task);
+                                if (val == 'edit')
+                                  showEditTaskSheet(context, task);
                                 if (val == 'delete') state.deleteTask(task.id);
                               },
                               itemBuilder: (context) => [
-                                const PopupMenuItem(value: 'edit', child: Text('Edit')),
-                                const PopupMenuItem(value: 'delete', child: Text('Delete')),
+                                const PopupMenuItem(
+                                  value: 'edit',
+                                  child: Text('Edit'),
+                                ),
+                                const PopupMenuItem(
+                                  value: 'delete',
+                                  child: Text('Delete'),
+                                ),
                               ],
                             ),
                           ],
@@ -535,7 +572,7 @@ class DashboardHomeTab extends StatelessWidget {
   }
 
   void _showAddSubjectSheet(BuildContext context) {
-    final state = AppStateProvider.of(context);
+    final state = context.read<StudyAppState>();
     final isDark = state.isDarkMode;
     final nameController = TextEditingController();
     Color selectedColor = const Color(0xFF6366F1);

@@ -1,42 +1,34 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'google_fonts.dart';
 import 'providers/app_state_provider.dart';
 import 'screens/login_screen.dart';
 
 void main() async {
-  // MUST be called before any plugin usage (SharedPreferences, etc.)
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Pre-initialize SharedPreferences BEFORE runApp so it's available
-  // synchronously when StudyAppState is constructed by Riverpod.
   final prefs = await SharedPreferences.getInstance();
-  debugPrint('[main] SharedPreferences initialized successfully.');
 
   runApp(
-    ProviderScope(
-      overrides: [
-        sharedPreferencesProvider.overrideWithValue(prefs),
-      ],
-      child: const StudyPlannerApp(),
+    ChangeNotifierProvider(
+      create: (_) => StudyAppState(prefs),
+      child: StudyPlannerApp(),
     ),
   );
 }
 
-class StudyPlannerApp extends ConsumerWidget {
+class StudyPlannerApp extends StatelessWidget {
   const StudyPlannerApp({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final state = ref.watch(studyAppStateProvider);
+  Widget build(BuildContext context) {
+    final state = context.watch<StudyAppState>();
     final themeMode = state.themeMode;
 
-    // Design-System aligned themes
-    const primaryColor = Color(0xFF6366F1); // Modern Indigo
-    const secondaryColor = Color(0xFF8B5CF6); // Vibrant Purple
+    const primaryColor = Color(0xFF6366F1);
+    const secondaryColor = Color(0xFF8B5CF6);
 
-    // Light Theme Definition
     final lightTheme = ThemeData(
       useMaterial3: true,
       brightness: Brightness.light,
@@ -53,21 +45,10 @@ class StudyPlannerApp extends ConsumerWidget {
         surface: Colors.white,
         surfaceContainer: const Color(0xFFE5EEFF),
         onSurface: const Color(0xFF0B1C30),
-        outline: Colors.grey.shade300,
       ),
-      textTheme: GoogleFonts.interTextTheme(ThemeData.light().textTheme).copyWith(
-        displayLarge: GoogleFonts.plusJakartaSans(
-          color: const Color(0xFF0B1C30),
-          fontWeight: FontWeight.bold,
-        ),
-        titleLarge: GoogleFonts.plusJakartaSans(
-          color: const Color(0xFF0B1C30),
-          fontWeight: FontWeight.bold,
-        ),
-      ),
+      textTheme: GoogleFonts.interTextTheme(ThemeData.light().textTheme),
     );
 
-    // Dark Theme Definition
     final darkTheme = ThemeData(
       useMaterial3: true,
       brightness: Brightness.dark,
@@ -79,35 +60,22 @@ class StudyPlannerApp extends ConsumerWidget {
         elevation: 0,
       ),
       colorScheme: const ColorScheme.dark(
-        primary: Color(0xFF8B5CF6), // Accent Purple in Dark Mode
+        primary: Color(0xFF8B5CF6),
         secondary: Color(0xFF6366F1),
         surface: Color(0xFF213145),
         surfaceContainer: Color(0xFF0B1C30),
         onSurface: Colors.white,
-        outline: Colors.white10,
       ),
-      textTheme: GoogleFonts.interTextTheme(ThemeData.dark().textTheme).copyWith(
-        displayLarge: GoogleFonts.plusJakartaSans(
-          color: Colors.white,
-          fontWeight: FontWeight.bold,
-        ),
-        titleLarge: GoogleFonts.plusJakartaSans(
-          color: Colors.white,
-          fontWeight: FontWeight.bold,
-        ),
-      ),
+      textTheme: GoogleFonts.interTextTheme(ThemeData.dark().textTheme),
     );
 
-    return AppStateProvider(
-      notifier: state,
-      child: MaterialApp(
-        title: 'Lumina Study Planner',
-        debugShowCheckedModeBanner: false,
-        theme: lightTheme,
-        darkTheme: darkTheme,
-        themeMode: themeMode,
-        home: const LoginScreen(),
-      ),
+    return MaterialApp(
+      title: 'Lumina Study Planner',
+      debugShowCheckedModeBanner: false,
+      theme: lightTheme,
+      darkTheme: darkTheme,
+      themeMode: themeMode,
+      home: const LoginScreen(),
     );
   }
 }

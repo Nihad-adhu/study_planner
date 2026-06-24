@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../google_fonts.dart';
 import 'package:intl/intl.dart';
 import '../providers/app_state_provider.dart';
@@ -12,24 +13,31 @@ class SubjectDetailScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final state = AppStateProvider.of(context);
+    final state = context.watch<StudyAppState>();
     final isDark = state.isDarkMode;
-    
+
     // Find subject
     final subject = state.subjects.firstWhere((s) => s.id == subjectId);
     final mastery = state.getSubjectMastery(subjectId);
 
     // Filter tasks
-    final subTasks = state.tasks.where((t) => t.subjectId == subjectId).toList();
+    final subTasks = state.tasks
+        .where((t) => t.subjectId == subjectId)
+        .toList();
     final completedCount = subTasks.where((t) => t.isCompleted).length;
 
     return Scaffold(
-      backgroundColor: isDark ? const Color(0xFF0B1C30) : const Color(0xFFF8F9FF),
+      backgroundColor: isDark
+          ? const Color(0xFF0B1C30)
+          : const Color(0xFFF8F9FF),
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: isDark ? Colors.white : const Color(0xFF0B1C30)),
+          icon: Icon(
+            Icons.arrow_back,
+            color: isDark ? Colors.white : const Color(0xFF0B1C30),
+          ),
           onPressed: () => Navigator.pop(context),
         ),
         title: Text(
@@ -41,7 +49,10 @@ class SubjectDetailScreen extends StatelessWidget {
         ),
         actions: [
           PopupMenuButton<String>(
-            icon: Icon(Icons.more_vert, color: isDark ? Colors.white : const Color(0xFF0B1C30)),
+            icon: Icon(
+              Icons.more_vert,
+              color: isDark ? Colors.white : const Color(0xFF0B1C30),
+            ),
             onSelected: (val) {
               if (val == 'edit') showEditSubjectSheet(context, subject);
               if (val == 'delete') {
@@ -51,7 +62,10 @@ class SubjectDetailScreen extends StatelessWidget {
             },
             itemBuilder: (context) => [
               const PopupMenuItem(value: 'edit', child: Text('Edit Subject')),
-              const PopupMenuItem(value: 'delete', child: Text('Delete Subject')),
+              const PopupMenuItem(
+                value: 'delete',
+                child: Text('Delete Subject'),
+              ),
             ],
           ),
         ],
@@ -101,14 +115,18 @@ class SubjectDetailScreen extends StatelessWidget {
                               style: GoogleFonts.plusJakartaSans(
                                 fontSize: 32,
                                 fontWeight: FontWeight.bold,
-                                color: isDark ? Colors.white : const Color(0xFF0B1C30),
+                                color: isDark
+                                    ? Colors.white
+                                    : const Color(0xFF0B1C30),
                               ),
                             ),
                             Text(
                               ' / ${(subject.targetMastery * 100).toInt()}% Target',
                               style: GoogleFonts.inter(
                                 fontSize: 13,
-                                color: isDark ? Colors.white60 : Colors.grey.shade600,
+                                color: isDark
+                                    ? Colors.white60
+                                    : Colors.grey.shade600,
                               ),
                             ),
                           ],
@@ -119,8 +137,12 @@ class SubjectDetailScreen extends StatelessWidget {
                           child: LinearProgressIndicator(
                             value: mastery,
                             minHeight: 6,
-                            backgroundColor: isDark ? Colors.white10 : Colors.grey.shade200,
-                            valueColor: AlwaysStoppedAnimation<Color>(subject.color),
+                            backgroundColor: isDark
+                                ? Colors.white10
+                                : Colors.grey.shade200,
+                            valueColor: AlwaysStoppedAnimation<Color>(
+                              subject.color,
+                            ),
                           ),
                         ),
                       ],
@@ -183,7 +205,11 @@ class SubjectDetailScreen extends StatelessWidget {
                 child: Center(
                   child: Column(
                     children: [
-                      Icon(Icons.assignment_outlined, color: Colors.grey.shade400, size: 36),
+                      Icon(
+                        Icons.assignment_outlined,
+                        color: Colors.grey.shade400,
+                        size: 36,
+                      ),
                       const SizedBox(height: 12),
                       Text(
                         'No tasks created for this subject yet.',
@@ -210,7 +236,9 @@ class SubjectDetailScreen extends StatelessWidget {
                       color: isDark ? const Color(0xFF213145) : Colors.white,
                       borderRadius: BorderRadius.circular(20),
                       border: Border.all(
-                        color: isDark ? Colors.transparent : Colors.grey.shade100,
+                        color: isDark
+                            ? Colors.transparent
+                            : Colors.grey.shade100,
                       ),
                     ),
                     child: ListTile(
@@ -222,11 +250,16 @@ class SubjectDetailScreen extends StatelessWidget {
                           ),
                         );
                       },
-                      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+                      contentPadding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 6,
+                      ),
                       leading: Checkbox(
                         value: task.isCompleted,
                         activeColor: subject.color,
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(6),
+                        ),
                         onChanged: (val) {
                           state.toggleTaskCompletion(task.id);
                         },
@@ -236,8 +269,12 @@ class SubjectDetailScreen extends StatelessWidget {
                         style: GoogleFonts.plusJakartaSans(
                           fontWeight: FontWeight.bold,
                           fontSize: 14,
-                          color: isDark ? Colors.white : const Color(0xFF0B1C30),
-                          decoration: task.isCompleted ? TextDecoration.lineThrough : null,
+                          color: isDark
+                              ? Colors.white
+                              : const Color(0xFF0B1C30),
+                          decoration: task.isCompleted
+                              ? TextDecoration.lineThrough
+                              : null,
                         ),
                       ),
                       subtitle: Column(
@@ -246,11 +283,18 @@ class SubjectDetailScreen extends StatelessWidget {
                           const SizedBox(height: 4),
                           Row(
                             children: [
-                              Icon(Icons.calendar_today_outlined, size: 12, color: Colors.grey.shade500),
+                              Icon(
+                                Icons.calendar_today_outlined,
+                                size: 12,
+                                color: Colors.grey.shade500,
+                              ),
                               const SizedBox(width: 4),
                               Text(
                                 DateFormat('MMM d, h:mm a').format(task.time),
-                                style: GoogleFonts.inter(fontSize: 11, color: Colors.grey.shade600),
+                                style: GoogleFonts.inter(
+                                  fontSize: 11,
+                                  color: Colors.grey.shade600,
+                                ),
                               ),
                             ],
                           ),
@@ -260,9 +304,14 @@ class SubjectDetailScreen extends StatelessWidget {
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 8,
+                              vertical: 4,
+                            ),
                             decoration: BoxDecoration(
-                              color: _getPriorityColor(task.priority).withValues(alpha: 0.1),
+                              color: _getPriorityColor(
+                                task.priority,
+                              ).withValues(alpha: 0.1),
                               borderRadius: BorderRadius.circular(8),
                             ),
                             child: Text(
@@ -275,15 +324,26 @@ class SubjectDetailScreen extends StatelessWidget {
                             ),
                           ),
                           PopupMenuButton<String>(
-                            icon: Icon(Icons.more_vert, color: isDark ? Colors.white54 : Colors.black45, size: 20),
+                            icon: Icon(
+                              Icons.more_vert,
+                              color: isDark ? Colors.white54 : Colors.black45,
+                              size: 20,
+                            ),
                             padding: EdgeInsets.zero,
                             onSelected: (val) {
-                              if (val == 'edit') showEditTaskSheet(context, task);
+                              if (val == 'edit')
+                                showEditTaskSheet(context, task);
                               if (val == 'delete') state.deleteTask(task.id);
                             },
                             itemBuilder: (context) => [
-                              const PopupMenuItem(value: 'edit', child: Text('Edit')),
-                              const PopupMenuItem(value: 'delete', child: Text('Delete')),
+                              const PopupMenuItem(
+                                value: 'edit',
+                                child: Text('Edit'),
+                              ),
+                              const PopupMenuItem(
+                                value: 'delete',
+                                child: Text('Delete'),
+                              ),
                             ],
                           ),
                         ],
@@ -314,7 +374,9 @@ class SubjectDetailScreen extends StatelessWidget {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      backgroundColor: state.isDarkMode ? const Color(0xFF213145) : Colors.white,
+      backgroundColor: state.isDarkMode
+          ? const Color(0xFF213145)
+          : Colors.white,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
@@ -337,44 +399,68 @@ class SubjectDetailScreen extends StatelessWidget {
                     style: GoogleFonts.plusJakartaSans(
                       fontSize: 20,
                       fontWeight: FontWeight.bold,
-                      color: state.isDarkMode ? Colors.white : const Color(0xFF0B1C30),
+                      color: state.isDarkMode
+                          ? Colors.white
+                          : const Color(0xFF0B1C30),
                     ),
                   ),
                   const SizedBox(height: 16),
                   TextField(
                     controller: nameController,
-                    style: GoogleFonts.inter(color: state.isDarkMode ? Colors.white : Colors.black87),
+                    style: GoogleFonts.inter(
+                      color: state.isDarkMode ? Colors.white : Colors.black87,
+                    ),
                     decoration: InputDecoration(
                       hintText: 'Task Title (e.g. Reaction Mechanisms)',
                       hintStyle: GoogleFonts.inter(color: Colors.grey),
                       filled: true,
-                      fillColor: state.isDarkMode ? const Color(0xFF0B1C30) : const Color(0xFFF8F9FF),
-                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
+                      fillColor: state.isDarkMode
+                          ? const Color(0xFF0B1C30)
+                          : const Color(0xFFF8F9FF),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: BorderSide.none,
+                      ),
                     ),
                   ),
                   const SizedBox(height: 12),
                   TextField(
                     controller: descController,
-                    style: GoogleFonts.inter(color: state.isDarkMode ? Colors.white : Colors.black87),
+                    style: GoogleFonts.inter(
+                      color: state.isDarkMode ? Colors.white : Colors.black87,
+                    ),
                     maxLines: 2,
                     decoration: InputDecoration(
                       hintText: 'Description (optional)',
                       hintStyle: GoogleFonts.inter(color: Colors.grey),
                       filled: true,
-                      fillColor: state.isDarkMode ? const Color(0xFF0B1C30) : const Color(0xFFF8F9FF),
-                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
+                      fillColor: state.isDarkMode
+                          ? const Color(0xFF0B1C30)
+                          : const Color(0xFFF8F9FF),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: BorderSide.none,
+                      ),
                     ),
                   ),
                   const SizedBox(height: 12),
                   TextField(
                     controller: subtasksController,
-                    style: GoogleFonts.inter(color: state.isDarkMode ? Colors.white : Colors.black87),
+                    style: GoogleFonts.inter(
+                      color: state.isDarkMode ? Colors.white : Colors.black87,
+                    ),
                     decoration: InputDecoration(
-                      hintText: 'Sub-tasks (comma separated, e.g. Draw SN1, Practice SN2)',
+                      hintText:
+                          'Sub-tasks (comma separated, e.g. Draw SN1, Practice SN2)',
                       hintStyle: GoogleFonts.inter(color: Colors.grey),
                       filled: true,
-                      fillColor: state.isDarkMode ? const Color(0xFF0B1C30) : const Color(0xFFF8F9FF),
-                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
+                      fillColor: state.isDarkMode
+                          ? const Color(0xFF0B1C30)
+                          : const Color(0xFFF8F9FF),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: BorderSide.none,
+                      ),
                     ),
                   ),
                   const SizedBox(height: 16),
@@ -385,7 +471,9 @@ class SubjectDetailScreen extends StatelessWidget {
                         'Priority',
                         style: GoogleFonts.plusJakartaSans(
                           fontWeight: FontWeight.bold,
-                          color: state.isDarkMode ? Colors.white : const Color(0xFF0B1C30),
+                          color: state.isDarkMode
+                              ? Colors.white
+                              : const Color(0xFF0B1C30),
                         ),
                       ),
                       Row(
@@ -399,11 +487,16 @@ class SubjectDetailScreen extends StatelessWidget {
                             },
                             child: Container(
                               margin: const EdgeInsets.only(left: 8),
-                              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 12,
+                                vertical: 6,
+                              ),
                               decoration: BoxDecoration(
                                 color: isSel
                                     ? const Color(0xFF6366F1)
-                                    : (state.isDarkMode ? const Color(0xFF0B1C30) : const Color(0xFFF8F9FF)),
+                                    : (state.isDarkMode
+                                          ? const Color(0xFF0B1C30)
+                                          : const Color(0xFFF8F9FF)),
                                 borderRadius: BorderRadius.circular(8),
                               ),
                               child: Text(

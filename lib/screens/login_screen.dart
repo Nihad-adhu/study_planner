@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../google_fonts.dart';
 import '../providers/app_state_provider.dart';
 import 'register_screen.dart';
@@ -29,7 +30,7 @@ class _LoginScreenState extends State<LoginScreen> {
   Future<void> _handleLogin() async {
     if (!_formKey.currentState!.validate()) return;
 
-    final state = AppStateProvider.of(context);
+    final state = context.read<StudyAppState>();
 
     setState(() {
       _isLoading = true;
@@ -37,6 +38,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
     // Simulate network/Firebase latency
     await Future.delayed(const Duration(seconds: 1500 ~/ 1000));
+    if (!mounted) return;
 
     setState(() {
       _isLoading = false;
@@ -75,18 +77,21 @@ class _LoginScreenState extends State<LoginScreen> {
         backgroundColor: const Color(0xFF213145),
         title: Text(
           'Authentication Error',
-          style: GoogleFonts.plusJakartaSans(color: Colors.white, fontWeight: FontWeight.bold),
+          style: GoogleFonts.plusJakartaSans(
+            color: Colors.white,
+            fontWeight: FontWeight.bold,
+          ),
         ),
-        content: Text(
-          message,
-          style: GoogleFonts.inter(color: Colors.white70),
-        ),
+        content: Text(message, style: GoogleFonts.inter(color: Colors.white70)),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
             child: Text(
               'OK',
-              style: GoogleFonts.plusJakartaSans(color: const Color(0xFF6366F1), fontWeight: FontWeight.bold),
+              style: GoogleFonts.plusJakartaSans(
+                color: const Color(0xFF6366F1),
+                fontWeight: FontWeight.bold,
+              ),
             ),
           ),
         ],
@@ -95,11 +100,12 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   void _handleGoogleSignIn() async {
-    final state = AppStateProvider.of(context);
+    final state = context.read<StudyAppState>();
     setState(() {
       _isLoading = true;
     });
     await Future.delayed(const Duration(seconds: 1));
+    if (!mounted) return;
     setState(() {
       _isLoading = false;
     });
@@ -121,7 +127,10 @@ class _LoginScreenState extends State<LoginScreen> {
         backgroundColor: const Color(0xFF213145),
         title: Text(
           'Reset Password',
-          style: GoogleFonts.plusJakartaSans(color: Colors.white, fontWeight: FontWeight.bold),
+          style: GoogleFonts.plusJakartaSans(
+            color: Colors.white,
+            fontWeight: FontWeight.bold,
+          ),
         ),
         content: Column(
           mainAxisSize: MainAxisSize.min,
@@ -140,7 +149,10 @@ class _LoginScreenState extends State<LoginScreen> {
                 hintStyle: GoogleFonts.inter(color: Colors.grey),
                 filled: true,
                 fillColor: const Color(0xFF0B1C30),
-                border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: BorderSide.none,
+                ),
               ),
             ),
           ],
@@ -158,14 +170,19 @@ class _LoginScreenState extends State<LoginScreen> {
               Navigator.pop(context);
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
-                  content: Text('Password reset link sent to ${forgotEmailController.text}'),
+                  content: Text(
+                    'Password reset link sent to ${forgotEmailController.text}',
+                  ),
                   backgroundColor: const Color(0xFF6366F1),
                 ),
               );
             },
             child: Text(
               'Send Reset Link',
-              style: GoogleFonts.plusJakartaSans(color: const Color(0xFF6366F1), fontWeight: FontWeight.bold),
+              style: GoogleFonts.plusJakartaSans(
+                color: const Color(0xFF6366F1),
+                fontWeight: FontWeight.bold,
+              ),
             ),
           ),
         ],
@@ -175,31 +192,43 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final state = AppStateProvider.of(context);
+    final state = context.watch<StudyAppState>();
     final primaryColor = const Color(0xFF6366F1);
     final isDark = state.isDarkMode;
     final onSurface = isDark ? Colors.white : const Color(0xFF0B1C30);
-    final surfaceContainer = isDark ? const Color(0xFF213145) : const Color(0xFFE5EEFF);
+    final surfaceContainer = isDark
+        ? const Color(0xFF213145)
+        : const Color(0xFFE5EEFF);
 
     return Scaffold(
-      backgroundColor: isDark ? const Color(0xFF0B1C30) : const Color(0xFFF8F9FF),
+      backgroundColor: isDark
+          ? const Color(0xFF0B1C30)
+          : const Color(0xFFF8F9FF),
       body: SafeArea(
         child: _isLoading
             ? Center(
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    CircularProgressIndicator(valueColor: AlwaysStoppedAnimation<Color>(primaryColor)),
+                    CircularProgressIndicator(
+                      valueColor: AlwaysStoppedAnimation<Color>(primaryColor),
+                    ),
                     const SizedBox(height: 16),
                     Text(
                       'Signing in to Lumina...',
-                      style: GoogleFonts.plusJakartaSans(color: onSurface, fontWeight: FontWeight.bold),
+                      style: GoogleFonts.plusJakartaSans(
+                        color: onSurface,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                   ],
                 ),
               )
             : SingleChildScrollView(
-                padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 40.0),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 24.0,
+                  vertical: 40.0,
+                ),
                 child: Form(
                   key: _formKey,
                   child: Column(
@@ -238,7 +267,9 @@ class _LoginScreenState extends State<LoginScreen> {
                           'Your portfolio of knowledge awaits',
                           style: GoogleFonts.inter(
                             fontSize: 14,
-                            color: isDark ? Colors.white70 : const Color(0xFF464554),
+                            color: isDark
+                                ? Colors.white70
+                                : const Color(0xFF464554),
                           ),
                         ),
                       ),
@@ -263,12 +294,21 @@ class _LoginScreenState extends State<LoginScreen> {
                           hintStyle: GoogleFonts.inter(color: Colors.grey),
                           filled: true,
                           fillColor: surfaceContainer,
-                          border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            borderSide: BorderSide.none,
+                          ),
                           focusedBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(12),
-                            borderSide: BorderSide(color: primaryColor, width: 2),
+                            borderSide: BorderSide(
+                              color: primaryColor,
+                              width: 2,
+                            ),
                           ),
-                          prefixIcon: const Icon(Icons.email_outlined, color: Colors.grey),
+                          prefixIcon: const Icon(
+                            Icons.email_outlined,
+                            color: Colors.grey,
+                          ),
                         ),
                         validator: (value) {
                           if (value == null || value.trim().isEmpty) {
@@ -301,15 +341,26 @@ class _LoginScreenState extends State<LoginScreen> {
                           hintStyle: GoogleFonts.inter(color: Colors.grey),
                           filled: true,
                           fillColor: surfaceContainer,
-                          border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            borderSide: BorderSide.none,
+                          ),
                           focusedBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(12),
-                            borderSide: BorderSide(color: primaryColor, width: 2),
+                            borderSide: BorderSide(
+                              color: primaryColor,
+                              width: 2,
+                            ),
                           ),
-                          prefixIcon: const Icon(Icons.lock_outline, color: Colors.grey),
+                          prefixIcon: const Icon(
+                            Icons.lock_outline,
+                            color: Colors.grey,
+                          ),
                           suffixIcon: IconButton(
                             icon: Icon(
-                              _obscurePassword ? Icons.visibility_off_outlined : Icons.visibility_outlined,
+                              _obscurePassword
+                                  ? Icons.visibility_off_outlined
+                                  : Icons.visibility_outlined,
                               color: Colors.grey,
                             ),
                             onPressed: () {
@@ -337,7 +388,9 @@ class _LoginScreenState extends State<LoginScreen> {
                               Checkbox(
                                 value: _rememberMe,
                                 activeColor: primaryColor,
-                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(4),
+                                ),
                                 onChanged: (val) {
                                   setState(() {
                                     _rememberMe = val ?? false;
@@ -346,7 +399,10 @@ class _LoginScreenState extends State<LoginScreen> {
                               ),
                               Text(
                                 'Remember me',
-                                style: GoogleFonts.inter(color: onSurface, fontSize: 13),
+                                style: GoogleFonts.inter(
+                                  color: onSurface,
+                                  fontSize: 13,
+                                ),
                               ),
                             ],
                           ),
@@ -411,7 +467,11 @@ class _LoginScreenState extends State<LoginScreen> {
                             ),
                           ),
                           style: OutlinedButton.styleFrom(
-                            side: BorderSide(color: isDark ? Colors.white24 : Colors.grey.shade300),
+                            side: BorderSide(
+                              color: isDark
+                                  ? Colors.white24
+                                  : Colors.grey.shade300,
+                            ),
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(16),
                             ),
@@ -425,14 +485,18 @@ class _LoginScreenState extends State<LoginScreen> {
                         child: GestureDetector(
                           onTap: () {
                             Navigator.of(context).pushReplacement(
-                              MaterialPageRoute(builder: (_) => const RegisterScreen()),
+                              MaterialPageRoute(
+                                builder: (_) => const RegisterScreen(),
+                              ),
                             );
                           },
                           child: RichText(
                             text: TextSpan(
                               text: "Don't have an account? ",
                               style: GoogleFonts.inter(
-                                color: isDark ? Colors.white70 : const Color(0xFF464554),
+                                color: isDark
+                                    ? Colors.white70
+                                    : const Color(0xFF464554),
                                 fontSize: 14,
                               ),
                               children: [

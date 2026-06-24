@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../google_fonts.dart';
 import 'package:intl/intl.dart';
 import '../providers/app_state_provider.dart';
@@ -12,7 +13,7 @@ class TaskDetailScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final state = AppStateProvider.of(context);
+    final state = context.watch<StudyAppState>();
     final isDark = state.isDarkMode;
 
     // Find task
@@ -20,22 +21,30 @@ class TaskDetailScreen extends StatelessWidget {
     if (taskIndex == -1) {
       return Scaffold(
         body: Center(
-          child: Text('Task not found', style: GoogleFonts.inter(color: Colors.red)),
+          child: Text(
+            'Task not found',
+            style: GoogleFonts.inter(color: Colors.red),
+          ),
         ),
       );
     }
-    
+
     final task = state.tasks[taskIndex];
     final subject = state.subjects.firstWhere((s) => s.id == task.subjectId);
     final progress = task.progress;
 
     return Scaffold(
-      backgroundColor: isDark ? const Color(0xFF0B1C30) : const Color(0xFFF8F9FF),
+      backgroundColor: isDark
+          ? const Color(0xFF0B1C30)
+          : const Color(0xFFF8F9FF),
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: isDark ? Colors.white : const Color(0xFF0B1C30)),
+          icon: Icon(
+            Icons.arrow_back,
+            color: isDark ? Colors.white : const Color(0xFF0B1C30),
+          ),
           onPressed: () => Navigator.pop(context),
         ),
         title: Text(
@@ -47,7 +56,10 @@ class TaskDetailScreen extends StatelessWidget {
         ),
         actions: [
           PopupMenuButton<String>(
-            icon: Icon(Icons.more_vert, color: isDark ? Colors.white : const Color(0xFF0B1C30)),
+            icon: Icon(
+              Icons.more_vert,
+              color: isDark ? Colors.white : const Color(0xFF0B1C30),
+            ),
             onSelected: (val) {
               if (val == 'edit') showEditTaskSheet(context, task);
               if (val == 'delete') {
@@ -72,7 +84,10 @@ class TaskDetailScreen extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 6,
+                  ),
                   decoration: BoxDecoration(
                     color: subject.color.withValues(alpha: 0.15),
                     borderRadius: BorderRadius.circular(12),
@@ -93,9 +108,14 @@ class TaskDetailScreen extends StatelessWidget {
                   ),
                 ),
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 6,
+                  ),
                   decoration: BoxDecoration(
-                    color: _getPriorityColor(task.priority).withValues(alpha: 0.1),
+                    color: _getPriorityColor(
+                      task.priority,
+                    ).withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Text(
@@ -126,7 +146,11 @@ class TaskDetailScreen extends StatelessWidget {
             // Due Date
             Row(
               children: [
-                Icon(Icons.calendar_month_outlined, size: 16, color: Colors.grey.shade500),
+                Icon(
+                  Icons.calendar_month_outlined,
+                  size: 16,
+                  color: Colors.grey.shade500,
+                ),
                 const SizedBox(width: 6),
                 Text(
                   'Due: ${DateFormat('EEEE, MMMM d, h:mm a').format(task.time)}',
@@ -238,25 +262,45 @@ class TaskDetailScreen extends StatelessWidget {
                         sub.title,
                         style: GoogleFonts.inter(
                           fontSize: 14,
-                          color: isDark ? Colors.white : const Color(0xFF0B1C30),
-                          decoration: sub.isCompleted ? TextDecoration.lineThrough : null,
+                          color: isDark
+                              ? Colors.white
+                              : const Color(0xFF0B1C30),
+                          decoration: sub.isCompleted
+                              ? TextDecoration.lineThrough
+                              : null,
                         ),
                       ),
                       controlAffinity: ListTileControlAffinity.leading,
                       secondary: PopupMenuButton<String>(
-                        icon: Icon(Icons.more_vert, color: isDark ? Colors.white54 : Colors.black45, size: 20),
+                        icon: Icon(
+                          Icons.more_vert,
+                          color: isDark ? Colors.white54 : Colors.black45,
+                          size: 20,
+                        ),
                         padding: EdgeInsets.zero,
                         onSelected: (val) {
-                          if (val == 'edit') showEditSubTaskDialog(context, task, sub);
-                          if (val == 'delete') state.deleteSubTask(task.id, sub.id);
+                          if (val == 'edit')
+                            showEditSubTaskDialog(context, task, sub);
+                          if (val == 'delete')
+                            state.deleteSubTask(task.id, sub.id);
                         },
                         itemBuilder: (context) => [
-                          const PopupMenuItem(value: 'edit', child: Text('Edit')),
-                          const PopupMenuItem(value: 'delete', child: Text('Delete')),
+                          const PopupMenuItem(
+                            value: 'edit',
+                            child: Text('Edit'),
+                          ),
+                          const PopupMenuItem(
+                            value: 'delete',
+                            child: Text('Delete'),
+                          ),
                         ],
                       ),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-                      checkboxShape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(14),
+                      ),
+                      checkboxShape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(4),
+                      ),
                       onChanged: (val) {
                         state.toggleSubTaskCompletion(task.id, sub.id);
                       },

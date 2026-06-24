@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../google_fonts.dart';
 import '../providers/app_state_provider.dart';
 import 'login_screen.dart';
@@ -43,7 +44,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
   Future<void> _handleRegister() async {
     if (!_formKey.currentState!.validate()) return;
 
-    final state = AppStateProvider.of(context);
+    final state = context.read<StudyAppState>();
 
     setState(() {
       _isLoading = true;
@@ -51,6 +52,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
     // Simulate Network Registration Delay
     await Future.delayed(const Duration(seconds: 1500 ~/ 1000));
+    if (!mounted) return;
 
     setState(() {
       _isLoading = false;
@@ -66,11 +68,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
   }
 
   void _handleGoogleSignUp() async {
-    final state = AppStateProvider.of(context);
+    final state = context.read<StudyAppState>();
     setState(() {
       _isLoading = true;
     });
     await Future.delayed(const Duration(seconds: 1));
+    if (!mounted) return;
     setState(() {
       _isLoading = false;
     });
@@ -86,31 +89,43 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final state = AppStateProvider.of(context);
+    final state = context.watch<StudyAppState>();
     final primaryColor = const Color(0xFF6366F1);
     final isDark = state.isDarkMode;
     final onSurface = isDark ? Colors.white : const Color(0xFF0B1C30);
-    final surfaceContainer = isDark ? const Color(0xFF213145) : const Color(0xFFE5EEFF);
+    final surfaceContainer = isDark
+        ? const Color(0xFF213145)
+        : const Color(0xFFE5EEFF);
 
     return Scaffold(
-      backgroundColor: isDark ? const Color(0xFF0B1C30) : const Color(0xFFF8F9FF),
+      backgroundColor: isDark
+          ? const Color(0xFF0B1C30)
+          : const Color(0xFFF8F9FF),
       body: SafeArea(
         child: _isLoading
             ? Center(
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    CircularProgressIndicator(valueColor: AlwaysStoppedAnimation<Color>(primaryColor)),
+                    CircularProgressIndicator(
+                      valueColor: AlwaysStoppedAnimation<Color>(primaryColor),
+                    ),
                     const SizedBox(height: 16),
                     Text(
                       'Creating your account...',
-                      style: GoogleFonts.plusJakartaSans(color: onSurface, fontWeight: FontWeight.bold),
+                      style: GoogleFonts.plusJakartaSans(
+                        color: onSurface,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                   ],
                 ),
               )
             : SingleChildScrollView(
-                padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 32.0),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 24.0,
+                  vertical: 32.0,
+                ),
                 child: Form(
                   key: _formKey,
                   child: Column(
@@ -149,7 +164,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           'Join Lumina Study today',
                           style: GoogleFonts.inter(
                             fontSize: 14,
-                            color: isDark ? Colors.white70 : const Color(0xFF464554),
+                            color: isDark
+                                ? Colors.white70
+                                : const Color(0xFF464554),
                           ),
                         ),
                       ),
@@ -173,12 +190,21 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           hintStyle: GoogleFonts.inter(color: Colors.grey),
                           filled: true,
                           fillColor: surfaceContainer,
-                          border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            borderSide: BorderSide.none,
+                          ),
                           focusedBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(12),
-                            borderSide: BorderSide(color: primaryColor, width: 2),
+                            borderSide: BorderSide(
+                              color: primaryColor,
+                              width: 2,
+                            ),
                           ),
-                          prefixIcon: const Icon(Icons.person_outline, color: Colors.grey),
+                          prefixIcon: const Icon(
+                            Icons.person_outline,
+                            color: Colors.grey,
+                          ),
                         ),
                         validator: (value) {
                           if (value == null || value.trim().isEmpty) {
@@ -208,12 +234,21 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           hintStyle: GoogleFonts.inter(color: Colors.grey),
                           filled: true,
                           fillColor: surfaceContainer,
-                          border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            borderSide: BorderSide.none,
+                          ),
                           focusedBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(12),
-                            borderSide: BorderSide(color: primaryColor, width: 2),
+                            borderSide: BorderSide(
+                              color: primaryColor,
+                              width: 2,
+                            ),
                           ),
-                          prefixIcon: const Icon(Icons.email_outlined, color: Colors.grey),
+                          prefixIcon: const Icon(
+                            Icons.email_outlined,
+                            color: Colors.grey,
+                          ),
                         ),
                         validator: (value) {
                           if (value == null || value.trim().isEmpty) {
@@ -243,18 +278,32 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         obscureText: _obscurePassword,
                         decoration: InputDecoration(
                           hintText: 'Minimum 8 chars, 1 upper, 1 special',
-                          hintStyle: GoogleFonts.inter(color: Colors.grey, fontSize: 13),
+                          hintStyle: GoogleFonts.inter(
+                            color: Colors.grey,
+                            fontSize: 13,
+                          ),
                           filled: true,
                           fillColor: surfaceContainer,
-                          border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            borderSide: BorderSide.none,
+                          ),
                           focusedBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(12),
-                            borderSide: BorderSide(color: primaryColor, width: 2),
+                            borderSide: BorderSide(
+                              color: primaryColor,
+                              width: 2,
+                            ),
                           ),
-                          prefixIcon: const Icon(Icons.lock_outline, color: Colors.grey),
+                          prefixIcon: const Icon(
+                            Icons.lock_outline,
+                            color: Colors.grey,
+                          ),
                           suffixIcon: IconButton(
                             icon: Icon(
-                              _obscurePassword ? Icons.visibility_off_outlined : Icons.visibility_outlined,
+                              _obscurePassword
+                                  ? Icons.visibility_off_outlined
+                                  : Icons.visibility_outlined,
                               color: Colors.grey,
                             ),
                             onPressed: () {
@@ -295,20 +344,32 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           hintStyle: GoogleFonts.inter(color: Colors.grey),
                           filled: true,
                           fillColor: surfaceContainer,
-                          border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            borderSide: BorderSide.none,
+                          ),
                           focusedBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(12),
-                            borderSide: BorderSide(color: primaryColor, width: 2),
+                            borderSide: BorderSide(
+                              color: primaryColor,
+                              width: 2,
+                            ),
                           ),
-                          prefixIcon: const Icon(Icons.lock_outline, color: Colors.grey),
+                          prefixIcon: const Icon(
+                            Icons.lock_outline,
+                            color: Colors.grey,
+                          ),
                           suffixIcon: IconButton(
                             icon: Icon(
-                              _obscureConfirmPassword ? Icons.visibility_off_outlined : Icons.visibility_outlined,
+                              _obscureConfirmPassword
+                                  ? Icons.visibility_off_outlined
+                                  : Icons.visibility_outlined,
                               color: Colors.grey,
                             ),
                             onPressed: () {
                               setState(() {
-                                _obscureConfirmPassword = !_obscureConfirmPassword;
+                                _obscureConfirmPassword =
+                                    !_obscureConfirmPassword;
                               });
                             },
                           ),
@@ -371,7 +432,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             ),
                           ),
                           style: OutlinedButton.styleFrom(
-                            side: BorderSide(color: isDark ? Colors.white24 : Colors.grey.shade300),
+                            side: BorderSide(
+                              color: isDark
+                                  ? Colors.white24
+                                  : Colors.grey.shade300,
+                            ),
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(16),
                             ),
@@ -385,14 +450,18 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         child: GestureDetector(
                           onTap: () {
                             Navigator.of(context).pushReplacement(
-                              MaterialPageRoute(builder: (_) => const LoginScreen()),
+                              MaterialPageRoute(
+                                builder: (_) => const LoginScreen(),
+                              ),
                             );
                           },
                           child: RichText(
                             text: TextSpan(
                               text: 'Already have an account? ',
                               style: GoogleFonts.inter(
-                                color: isDark ? Colors.white70 : const Color(0xFF464554),
+                                color: isDark
+                                    ? Colors.white70
+                                    : const Color(0xFF464554),
                                 fontSize: 14,
                               ),
                               children: [

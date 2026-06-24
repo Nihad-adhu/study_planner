@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../google_fonts.dart';
 import '../providers/app_state_provider.dart';
 
 void showEditSubjectSheet(BuildContext context, Subject subject) {
-  final state = AppStateProvider.of(context);
+  final state = context.read<StudyAppState>();
   final isDark = state.isDarkMode;
   final nameController = TextEditingController(text: subject.name);
   Color selectedColor = subject.color;
@@ -68,7 +69,9 @@ void showEditSubjectSheet(BuildContext context, Subject subject) {
                     hintText: 'Subject Name',
                     hintStyle: GoogleFonts.inter(color: Colors.grey),
                     filled: true,
-                    fillColor: isDark ? const Color(0xFF0B1C30) : const Color(0xFFF8F9FF),
+                    fillColor: isDark
+                        ? const Color(0xFF0B1C30)
+                        : const Color(0xFFF8F9FF),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
                       borderSide: BorderSide.none,
@@ -104,12 +107,18 @@ void showEditSubjectSheet(BuildContext context, Subject subject) {
                           height: 36,
                           margin: const EdgeInsets.only(right: 12),
                           decoration: BoxDecoration(
-                            color: isSel ? selectedColor.withValues(alpha: 0.2) : (isDark ? const Color(0xFF0B1C30) : const Color(0xFFF8F9FF)),
+                            color: isSel
+                                ? selectedColor.withValues(alpha: 0.2)
+                                : (isDark
+                                      ? const Color(0xFF0B1C30)
+                                      : const Color(0xFFF8F9FF)),
                             shape: BoxShape.circle,
                           ),
                           child: Icon(
                             Icons.circle,
-                            color: isSel ? selectedColor : c.withValues(alpha: 0.5),
+                            color: isSel
+                                ? selectedColor
+                                : c.withValues(alpha: 0.5),
                             size: 20,
                           ),
                         ),
@@ -146,7 +155,11 @@ void showEditSubjectSheet(BuildContext context, Subject subject) {
                           height: 36,
                           margin: const EdgeInsets.only(right: 12),
                           decoration: BoxDecoration(
-                            color: isSel ? selectedColor.withValues(alpha: 0.2) : (isDark ? const Color(0xFF0B1C30) : const Color(0xFFF8F9FF)),
+                            color: isSel
+                                ? selectedColor.withValues(alpha: 0.2)
+                                : (isDark
+                                      ? const Color(0xFF0B1C30)
+                                      : const Color(0xFFF8F9FF)),
                             shape: BoxShape.circle,
                           ),
                           child: Icon(
@@ -202,7 +215,7 @@ void showEditSubjectSheet(BuildContext context, Subject subject) {
 }
 
 void showEditTaskSheet(BuildContext context, StudyTask task) {
-  final state = AppStateProvider.of(context);
+  final state = context.read<StudyAppState>();
   final isDark = state.isDarkMode;
   final nameController = TextEditingController(text: task.title);
   final descController = TextEditingController(text: task.description);
@@ -241,26 +254,40 @@ void showEditTaskSheet(BuildContext context, StudyTask task) {
                 const SizedBox(height: 16),
                 TextField(
                   controller: nameController,
-                  style: GoogleFonts.inter(color: isDark ? Colors.white : Colors.black87),
+                  style: GoogleFonts.inter(
+                    color: isDark ? Colors.white : Colors.black87,
+                  ),
                   decoration: InputDecoration(
                     hintText: 'Task Title',
                     hintStyle: GoogleFonts.inter(color: Colors.grey),
                     filled: true,
-                    fillColor: isDark ? const Color(0xFF0B1C30) : const Color(0xFFF8F9FF),
-                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
+                    fillColor: isDark
+                        ? const Color(0xFF0B1C30)
+                        : const Color(0xFFF8F9FF),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide.none,
+                    ),
                   ),
                 ),
                 const SizedBox(height: 12),
                 TextField(
                   controller: descController,
-                  style: GoogleFonts.inter(color: isDark ? Colors.white : Colors.black87),
+                  style: GoogleFonts.inter(
+                    color: isDark ? Colors.white : Colors.black87,
+                  ),
                   maxLines: 2,
                   decoration: InputDecoration(
                     hintText: 'Description (optional)',
                     hintStyle: GoogleFonts.inter(color: Colors.grey),
                     filled: true,
-                    fillColor: isDark ? const Color(0xFF0B1C30) : const Color(0xFFF8F9FF),
-                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
+                    fillColor: isDark
+                        ? const Color(0xFF0B1C30)
+                        : const Color(0xFFF8F9FF),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide.none,
+                    ),
                   ),
                 ),
                 const SizedBox(height: 16),
@@ -285,9 +312,16 @@ void showEditTaskSheet(BuildContext context, StudyTask task) {
                           },
                           child: Container(
                             margin: const EdgeInsets.only(left: 8),
-                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 12,
+                              vertical: 6,
+                            ),
                             decoration: BoxDecoration(
-                              color: isSel ? const Color(0xFF6366F1) : (isDark ? const Color(0xFF0B1C30) : const Color(0xFFF8F9FF)),
+                              color: isSel
+                                  ? const Color(0xFF6366F1)
+                                  : (isDark
+                                        ? const Color(0xFF0B1C30)
+                                        : const Color(0xFFF8F9FF)),
                               borderRadius: BorderRadius.circular(8),
                             ),
                             child: Text(
@@ -347,8 +381,12 @@ void showEditTaskSheet(BuildContext context, StudyTask task) {
   );
 }
 
-void showEditSubTaskDialog(BuildContext context, StudyTask task, SubTask subTask) {
-  final state = AppStateProvider.of(context);
+void showEditSubTaskDialog(
+  BuildContext context,
+  StudyTask task,
+  SubTask subTask,
+) {
+  final state = context.read<StudyAppState>();
   final isDark = state.isDarkMode;
   final nameController = TextEditingController(text: subTask.title);
 
@@ -367,13 +405,20 @@ void showEditSubTaskDialog(BuildContext context, StudyTask task, SubTask subTask
         content: TextField(
           controller: nameController,
           autofocus: true,
-          style: GoogleFonts.inter(color: isDark ? Colors.white : Colors.black87),
+          style: GoogleFonts.inter(
+            color: isDark ? Colors.white : Colors.black87,
+          ),
           decoration: InputDecoration(
             hintText: 'Sub-task Title',
             hintStyle: GoogleFonts.inter(color: Colors.grey),
             filled: true,
-            fillColor: isDark ? const Color(0xFF0B1C30) : const Color(0xFFF8F9FF),
-            border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
+            fillColor: isDark
+                ? const Color(0xFF0B1C30)
+                : const Color(0xFFF8F9FF),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: BorderSide.none,
+            ),
           ),
         ),
         actions: [
@@ -381,22 +426,34 @@ void showEditSubTaskDialog(BuildContext context, StudyTask task, SubTask subTask
             onPressed: () => Navigator.pop(context),
             child: Text(
               'Cancel',
-              style: GoogleFonts.inter(color: Colors.grey, fontWeight: FontWeight.bold),
+              style: GoogleFonts.inter(
+                color: Colors.grey,
+                fontWeight: FontWeight.bold,
+              ),
             ),
           ),
           ElevatedButton(
             onPressed: () {
               if (nameController.text.trim().isNotEmpty) {
-                state.editSubTask(task.id, subTask.id, nameController.text.trim());
+                state.editSubTask(
+                  task.id,
+                  subTask.id,
+                  nameController.text.trim(),
+                );
                 Navigator.pop(context);
               }
             },
             style: ElevatedButton.styleFrom(
               backgroundColor: const Color(0xFF6366F1),
               foregroundColor: Colors.white,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
             ),
-            child: Text('Save', style: GoogleFonts.inter(fontWeight: FontWeight.bold)),
+            child: Text(
+              'Save',
+              style: GoogleFonts.inter(fontWeight: FontWeight.bold),
+            ),
           ),
         ],
       );

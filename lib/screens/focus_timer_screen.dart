@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../google_fonts.dart';
 import '../providers/app_state_provider.dart';
 
@@ -51,8 +52,8 @@ class _FocusTimerScreenState extends State<FocusTimerScreen> {
 
   void _completeSession() {
     _pauseTimer();
-    final state = AppStateProvider.of(context);
-    
+    final state = context.read<StudyAppState>();
+
     // Add 25 minutes to total study time
     double minutesStudied = _totalDurationSeconds / 60;
     state.addStudyMinutes(minutesStudied);
@@ -79,7 +80,7 @@ class _FocusTimerScreenState extends State<FocusTimerScreen> {
   }
 
   void _showMilestoneCelebration(Milestone milestone) {
-    final state = AppStateProvider.of(context);
+    final state = context.read<StudyAppState>();
     showGeneralDialog(
       context: context,
       barrierDismissible: false,
@@ -107,7 +108,7 @@ class _FocusTimerScreenState extends State<FocusTimerScreen> {
                             color: Color(0xFF8B5CF6),
                             blurRadius: 40,
                             spreadRadius: 10,
-                          )
+                          ),
                         ],
                       ),
                       child: const Icon(
@@ -188,7 +189,7 @@ class _FocusTimerScreenState extends State<FocusTimerScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final state = AppStateProvider.of(context);
+    final state = context.watch<StudyAppState>();
     final isDark = state.isDarkMode;
 
     final taskIndex = state.tasks.indexWhere((t) => t.id == widget.taskId);
@@ -200,16 +201,22 @@ class _FocusTimerScreenState extends State<FocusTimerScreen> {
 
     int mins = _secondsLeft ~/ 60;
     int secs = _secondsLeft % 60;
-    String timeStr = '${mins.toString().padLeft(2, '0')}:${secs.toString().padLeft(2, '0')}';
+    String timeStr =
+        '${mins.toString().padLeft(2, '0')}:${secs.toString().padLeft(2, '0')}';
     double percent = _secondsLeft / _totalDurationSeconds;
 
     return Scaffold(
-      backgroundColor: isDark ? const Color(0xFF0B1C30) : const Color(0xFFF8F9FF),
+      backgroundColor: isDark
+          ? const Color(0xFF0B1C30)
+          : const Color(0xFFF8F9FF),
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
-          icon: Icon(Icons.close, color: isDark ? Colors.white : const Color(0xFF0B1C30)),
+          icon: Icon(
+            Icons.close,
+            color: isDark ? Colors.white : const Color(0xFF0B1C30),
+          ),
           onPressed: () {
             _pauseTimer();
             Navigator.pop(context);
@@ -260,7 +267,9 @@ class _FocusTimerScreenState extends State<FocusTimerScreen> {
                     CircularProgressIndicator(
                       value: percent,
                       strokeWidth: 10,
-                      backgroundColor: isDark ? Colors.white10 : Colors.grey.shade200,
+                      backgroundColor: isDark
+                          ? Colors.white10
+                          : Colors.grey.shade200,
                       valueColor: AlwaysStoppedAnimation<Color>(subject.color),
                     ),
                     Center(
@@ -269,7 +278,9 @@ class _FocusTimerScreenState extends State<FocusTimerScreen> {
                         style: GoogleFonts.plusJakartaSans(
                           fontSize: 48,
                           fontWeight: FontWeight.bold,
-                          color: isDark ? Colors.white : const Color(0xFF0B1C30),
+                          color: isDark
+                              ? Colors.white
+                              : const Color(0xFF0B1C30),
                         ),
                       ),
                     ),
@@ -284,7 +295,11 @@ class _FocusTimerScreenState extends State<FocusTimerScreen> {
                 children: [
                   IconButton(
                     onPressed: _resetTimer,
-                    icon: Icon(Icons.replay, size: 28, color: isDark ? Colors.white70 : Colors.black54),
+                    icon: Icon(
+                      Icons.replay,
+                      size: 28,
+                      color: isDark ? Colors.white70 : Colors.black54,
+                    ),
                   ),
                   const SizedBox(width: 32),
                   GestureDetector(
@@ -299,7 +314,7 @@ class _FocusTimerScreenState extends State<FocusTimerScreen> {
                             color: subject.color.withValues(alpha: 0.3),
                             blurRadius: 20,
                             offset: const Offset(0, 8),
-                          )
+                          ),
                         ],
                       ),
                       child: Icon(
@@ -318,7 +333,9 @@ class _FocusTimerScreenState extends State<FocusTimerScreen> {
               ),
               const SizedBox(height: 40),
               Text(
-                _isRunning ? 'Stay focused. Put away distractions.' : 'Ready to start focus session?',
+                _isRunning
+                    ? 'Stay focused. Put away distractions.'
+                    : 'Ready to start focus session?',
                 style: GoogleFonts.inter(
                   fontSize: 14,
                   color: isDark ? Colors.white60 : Colors.grey.shade600,

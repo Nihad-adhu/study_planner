@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../google_fonts.dart';
 import '../providers/app_state_provider.dart';
 
@@ -7,7 +8,7 @@ class AnalyticsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final state = AppStateProvider.of(context);
+    final state = context.watch<StudyAppState>();
     final isDark = state.isDarkMode;
     final onSurface = isDark ? Colors.white : const Color(0xFF0B1C30);
     final primaryColor = const Color(0xFF6366F1);
@@ -16,10 +17,14 @@ class AnalyticsScreen extends StatelessWidget {
     // Calculate completion rates
     final totalTasks = state.tasks.length;
     final completedTasks = state.tasks.where((t) => t.isCompleted).length;
-    final completionRate = totalTasks == 0 ? 0.0 : (completedTasks / totalTasks);
+    final completionRate = totalTasks == 0
+        ? 0.0
+        : (completedTasks / totalTasks);
 
     return Scaffold(
-      backgroundColor: isDark ? const Color(0xFF0B1C30) : const Color(0xFFF8F9FF),
+      backgroundColor: isDark
+          ? const Color(0xFF0B1C30)
+          : const Color(0xFFF8F9FF),
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
@@ -51,7 +56,7 @@ class AnalyticsScreen extends StatelessWidget {
                           color: Colors.black.withValues(alpha: 0.02),
                           blurRadius: 10,
                           offset: const Offset(0, 4),
-                        )
+                        ),
                       ],
                     ),
                     child: Column(
@@ -59,7 +64,10 @@ class AnalyticsScreen extends StatelessWidget {
                       children: [
                         Text(
                           'Study Time',
-                          style: GoogleFonts.inter(fontSize: 12, color: Colors.grey.shade500),
+                          style: GoogleFonts.inter(
+                            fontSize: 12,
+                            color: Colors.grey.shade500,
+                          ),
                         ),
                         const SizedBox(height: 6),
                         Text(
@@ -86,7 +94,7 @@ class AnalyticsScreen extends StatelessWidget {
                           color: Colors.black.withValues(alpha: 0.02),
                           blurRadius: 10,
                           offset: const Offset(0, 4),
-                        )
+                        ),
                       ],
                     ),
                     child: Column(
@@ -94,7 +102,10 @@ class AnalyticsScreen extends StatelessWidget {
                       children: [
                         Text(
                           'Completion Rate',
-                          style: GoogleFonts.inter(fontSize: 12, color: Colors.grey.shade500),
+                          style: GoogleFonts.inter(
+                            fontSize: 12,
+                            color: Colors.grey.shade500,
+                          ),
                         ),
                         const SizedBox(height: 6),
                         Text(
@@ -169,8 +180,12 @@ class AnalyticsScreen extends StatelessWidget {
                           child: LinearProgressIndicator(
                             value: mastery,
                             minHeight: 8,
-                            backgroundColor: isDark ? Colors.white10 : Colors.grey.shade100,
-                            valueColor: AlwaysStoppedAnimation<Color>(sub.color),
+                            backgroundColor: isDark
+                                ? Colors.white10
+                                : Colors.grey.shade100,
+                            valueColor: AlwaysStoppedAnimation<Color>(
+                              sub.color,
+                            ),
                           ),
                         ),
                       ],
@@ -219,8 +234,12 @@ class AnalyticsScreen extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Icon(
-                        milestone.isAchieved ? Icons.emoji_events : Icons.lock_outline,
-                        color: milestone.isAchieved ? accentColor : Colors.grey.shade400,
+                        milestone.isAchieved
+                            ? Icons.emoji_events
+                            : Icons.lock_outline,
+                        color: milestone.isAchieved
+                            ? accentColor
+                            : Colors.grey.shade400,
                         size: 24,
                       ),
                       const Spacer(),
@@ -231,7 +250,9 @@ class AnalyticsScreen extends StatelessWidget {
                         style: GoogleFonts.plusJakartaSans(
                           fontWeight: FontWeight.bold,
                           fontSize: 14,
-                          color: milestone.isAchieved ? onSurface : Colors.grey.shade500,
+                          color: milestone.isAchieved
+                              ? onSurface
+                              : Colors.grey.shade500,
                         ),
                       ),
                       const SizedBox(height: 2),
@@ -241,7 +262,9 @@ class AnalyticsScreen extends StatelessWidget {
                             : '${milestone.targetMinutes.toInt()}m target',
                         style: GoogleFonts.inter(
                           fontSize: 11,
-                          color: milestone.isAchieved ? Colors.green.shade600 : Colors.grey.shade500,
+                          color: milestone.isAchieved
+                              ? Colors.green.shade600
+                              : Colors.grey.shade500,
                         ),
                       ),
                     ],
