@@ -40,16 +40,6 @@ class _CalendarScreenState extends State<CalendarScreen> {
         backgroundColor: Colors.transparent,
         elevation: 0,
         automaticallyImplyLeading: false,
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: onSurface),
-          onPressed: () {
-            if (Navigator.canPop(context)) {
-              Navigator.of(context).pop();
-            } else {
-              Navigator.of(context).maybePop();
-            }
-          },
-        ),
         title: Row(
           children: [
             if (_isMonthView) ...[
