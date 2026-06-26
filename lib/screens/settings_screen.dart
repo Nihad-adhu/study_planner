@@ -33,6 +33,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
         backgroundColor: Colors.transparent,
         elevation: 0,
         automaticallyImplyLeading: false,
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back, color: onSurface),
+          onPressed: () => Navigator.of(context).pop(),
+        ),
         title: Text(
           'Settings',
           style: GoogleFonts.plusJakartaSans(
@@ -546,13 +550,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               child: Column(
                 children: [
                   ListTile(
-                    onTap: () {
-                      state.logout();
-                      Navigator.of(context).pushAndRemoveUntil(
-                        MaterialPageRoute(builder: (_) => const LoginScreen()),
-                        (route) => false,
-                      );
-                    },
+                    onTap: () => _showLogoutConfirmDialog(context),
                     leading: const Icon(Icons.logout, color: Colors.redAccent),
                     title: Text(
                       'Log Out',
@@ -768,6 +766,47 @@ class _SettingsScreenState extends State<SettingsScreen> {
               );
             },
             child: const Text('Delete', style: TextStyle(color: Colors.red)),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showLogoutConfirmDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: const Color(0xFF213145),
+        title: Text(
+          'Log Out',
+          style: GoogleFonts.plusJakartaSans(
+            color: Colors.redAccent,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        content: Text(
+          'Are you sure you want to log out?',
+          style: GoogleFonts.inter(color: Colors.white70),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel', style: TextStyle(color: Colors.grey)),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.pop(context);
+              final state = context.read<StudyAppState>();
+              state.logout();
+              Navigator.of(context).pushAndRemoveUntil(
+                MaterialPageRoute(builder: (_) => const LoginScreen()),
+                (route) => false,
+              );
+            },
+            child: const Text(
+              'Log Out',
+              style: TextStyle(color: Colors.redAccent, fontWeight: FontWeight.bold),
+            ),
           ),
         ],
       ),

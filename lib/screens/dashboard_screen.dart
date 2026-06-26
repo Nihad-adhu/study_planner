@@ -7,6 +7,7 @@ import 'task_detail_screen.dart';
 import 'calendar_screen.dart';
 import 'analytics_screen.dart';
 import 'rewards_screen.dart';
+import 'notifications_screen.dart';
 
 import '../widgets/custom_drawer.dart';
 import '../widgets/animated_greeting.dart';
@@ -152,8 +153,9 @@ class DashboardHomeTab extends StatelessWidget {
                   ),
                   IconButton(
                     onPressed: () {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('No new notifications.')),
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (_) => const NotificationsScreen()),
                       );
                     },
                     icon: Icon(

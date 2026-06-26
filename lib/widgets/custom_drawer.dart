@@ -5,6 +5,7 @@ import '../providers/app_state_provider.dart'; // Contains your updated StudyApp
 import '../screens/login_screen.dart';
 import '../screens/focus_timer_screen.dart';
 import '../screens/settings_screen.dart';
+import '../screens/notifications_screen.dart';
 
 class CustomDrawer extends StatelessWidget {
   final int activeIndex;
@@ -193,8 +194,9 @@ class CustomDrawer extends StatelessWidget {
                   isActive: false,
                   onTap: () {
                     Navigator.pop(context);
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('No new notifications.')),
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (_) => const NotificationsScreen()),
                     );
                   },
                 ),
@@ -273,11 +275,7 @@ class CustomDrawer extends StatelessWidget {
               isActive: false,
               color: Colors.redAccent,
               onTap: () {
-                state.logout();
-                Navigator.of(context).pushAndRemoveUntil(
-                  MaterialPageRoute(builder: (_) => const LoginScreen()),
-                  (route) => false,
-                );
+                _showLogoutConfirmDialog(context, state);
               },
             ),
           ),
@@ -360,6 +358,46 @@ class CustomDrawer extends StatelessWidget {
           TextButton(
             onPressed: () => Navigator.pop(context),
             child: const Text('OK'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showLogoutConfirmDialog(BuildContext context, StudyAppState state) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: Theme.of(context).cardColor,
+        title: Text(
+          'Log Out',
+          style: GoogleFonts.plusJakartaSans(
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        content: Text(
+          'Are you sure you want to log out?',
+          style: GoogleFonts.inter(),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel', style: TextStyle(color: Colors.grey)),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.pop(context); // Pop dialog
+              Navigator.pop(context); // Pop drawer
+              state.logout();
+              Navigator.of(context).pushAndRemoveUntil(
+                MaterialPageRoute(builder: (_) => const LoginScreen()),
+                (route) => false,
+              );
+            },
+            child: const Text(
+              'Log Out',
+              style: TextStyle(color: Colors.redAccent, fontWeight: FontWeight.bold),
+            ),
           ),
         ],
       ),
