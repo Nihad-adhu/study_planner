@@ -26,9 +26,14 @@ class StudyAppState extends ChangeNotifier {
   double totalStudyMinutes = 75;
 
   // ── Theme ──
-  bool isDarkMode = true;
   ThemeMode _themeMode = ThemeMode.system;
   ThemeMode get themeMode => _themeMode;
+  bool get isDarkMode {
+    if (_themeMode == ThemeMode.system) {
+      return WidgetsBinding.instance.platformDispatcher.platformBrightness == Brightness.dark;
+    }
+    return _themeMode == ThemeMode.dark;
+  }
 
   // ── Milestone overlay ──
   Milestone? recentAchievedMilestone;
@@ -54,24 +59,19 @@ class StudyAppState extends ChangeNotifier {
       switch (stored) {
         case 'light':
           _themeMode = ThemeMode.light;
-          isDarkMode = false;
         case 'dark':
           _themeMode = ThemeMode.dark;
-          isDarkMode = true;
         default:
           _themeMode = ThemeMode.system;
-          isDarkMode = true;
       }
     } catch (e) {
       _themeMode = ThemeMode.system;
-      isDarkMode = true;
     }
   }
 
   Future<void> setThemeMode(ThemeMode mode) async {
     if (_themeMode == mode) return;
     _themeMode = mode;
-    isDarkMode = (mode == ThemeMode.dark);
     notifyListeners();
 
     try {
@@ -247,10 +247,10 @@ class StudyAppState extends ChangeNotifier {
   // Theme toggle
   // ────────────────────────────────────────────
   void toggleTheme() {
-    isDarkMode = !isDarkMode;
-    _themeMode = isDarkMode ? ThemeMode.dark : ThemeMode.light;
+    final newMode = isDarkMode ? ThemeMode.light : ThemeMode.dark;
+    _themeMode = newMode;
     notifyListeners();
-    _prefs.setString(_kThemeModeKey, isDarkMode ? 'dark' : 'light').catchError((
+    _prefs.setString(_kThemeModeKey, newMode == ThemeMode.dark ? 'dark' : 'light').catchError((
       e,
     ) {
       debugPrint('[StudyAppState] toggleTheme persist error: $e');
