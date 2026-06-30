@@ -331,8 +331,9 @@ class SubjectDetailScreen extends StatelessWidget {
                             ),
                             padding: EdgeInsets.zero,
                             onSelected: (val) {
-                              if (val == 'edit')
+                              if (val == 'edit') {
                                 showEditTaskSheet(context, task);
+                              }
                               if (val == 'delete') state.deleteTask(task.id);
                             },
                             itemBuilder: (context) => [

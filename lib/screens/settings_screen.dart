@@ -646,13 +646,26 @@ class _SettingsScreenState extends State<SettingsScreen> {
             child: const Text('Cancel', style: TextStyle(color: Colors.grey)),
           ),
           TextButton(
-            onPressed: () {
-              state.editProfile(
-                nameController.text.trim(),
-                emailController.text.trim(),
-              );
-              Navigator.pop(context);
-              setState(() {});
+            onPressed: () async {
+              try {
+                await state.editProfile(
+                  nameController.text.trim(),
+                  emailController.text.trim(),
+                );
+                if (context.mounted) {
+                  Navigator.pop(context);
+                  setState(() {});
+                }
+              } catch (e) {
+                if (context.mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text('Failed to update profile: $e'),
+                      backgroundColor: Colors.red,
+                    ),
+                  );
+                }
+              }
             },
             child: const Text(
               'Save',
@@ -665,7 +678,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
   }
 
   void _showChangePasswordDialog(BuildContext context) {
-    final passController = TextEditingController();
+    final currentPassController = TextEditingController();
+    final newPassController = TextEditingController();
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
@@ -677,14 +691,29 @@ class _SettingsScreenState extends State<SettingsScreen> {
             fontWeight: FontWeight.bold,
           ),
         ),
-        content: TextField(
-          controller: passController,
-          obscureText: true,
-          style: GoogleFonts.inter(color: Colors.white),
-          decoration: const InputDecoration(
-            hintText: 'Enter new password',
-            hintStyle: TextStyle(color: Colors.grey),
-          ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            TextField(
+              controller: currentPassController,
+              obscureText: true,
+              style: GoogleFonts.inter(color: Colors.white),
+              decoration: const InputDecoration(
+                hintText: 'Enter current password',
+                hintStyle: TextStyle(color: Colors.grey),
+              ),
+            ),
+            const SizedBox(height: 12),
+            TextField(
+              controller: newPassController,
+              obscureText: true,
+              style: GoogleFonts.inter(color: Colors.white),
+              decoration: const InputDecoration(
+                hintText: 'Enter new password',
+                hintStyle: TextStyle(color: Colors.grey),
+              ),
+            ),
+          ],
         ),
         actions: [
           TextButton(
@@ -692,14 +721,41 @@ class _SettingsScreenState extends State<SettingsScreen> {
             child: const Text('Cancel', style: TextStyle(color: Colors.grey)),
           ),
           TextButton(
-            onPressed: () {
-              Navigator.pop(context);
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text('Password updated successfully!'),
-                  backgroundColor: Colors.green,
-                ),
-              );
+            onPressed: () async {
+              if (currentPassController.text.isEmpty || newPassController.text.isEmpty) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('Please fill out both fields.'),
+                    backgroundColor: Colors.red,
+                  ),
+                );
+                return;
+              }
+              try {
+                final state = context.read<StudyAppState>();
+                await state.changePassword(
+                  currentPassController.text.trim(),
+                  newPassController.text.trim(),
+                );
+                if (context.mounted) {
+                  Navigator.pop(context);
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Password updated successfully!'),
+                      backgroundColor: Colors.green,
+                    ),
+                  );
+                }
+              } catch (e) {
+                if (context.mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text('Failed to update password: $e'),
+                      backgroundColor: Colors.red,
+                    ),
+                  );
+                }
+              }
             },
             child: const Text(
               'Update',
@@ -735,6 +791,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
   }
 
   void _showDeleteConfirmDialog(BuildContext context) {
+    final passwordController = TextEditingController();
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
@@ -746,9 +803,25 @@ class _SettingsScreenState extends State<SettingsScreen> {
             fontWeight: FontWeight.bold,
           ),
         ),
-        content: Text(
-          'Are you sure you want to permanently delete your account? This action is irreversible.',
-          style: GoogleFonts.inter(color: Colors.white70),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Are you sure you want to permanently delete your account? This action is irreversible. Please enter your password to confirm.',
+              style: GoogleFonts.inter(color: Colors.white70, fontSize: 13),
+            ),
+            const SizedBox(height: 16),
+            TextField(
+              controller: passwordController,
+              obscureText: true,
+              style: GoogleFonts.inter(color: Colors.white),
+              decoration: const InputDecoration(
+                hintText: 'Enter password',
+                hintStyle: TextStyle(color: Colors.grey),
+              ),
+            ),
+          ],
         ),
         actions: [
           TextButton(
@@ -756,14 +829,36 @@ class _SettingsScreenState extends State<SettingsScreen> {
             child: const Text('Cancel', style: TextStyle(color: Colors.grey)),
           ),
           TextButton(
-            onPressed: () {
-              Navigator.pop(context);
-              final state = context.read<StudyAppState>();
-              state.logout();
-              Navigator.of(context).pushAndRemoveUntil(
-                MaterialPageRoute(builder: (_) => const LoginScreen()),
-                (route) => false,
-              );
+            onPressed: () async {
+              if (passwordController.text.isEmpty) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('Please enter your password to confirm.'),
+                    backgroundColor: Colors.red,
+                  ),
+                );
+                return;
+              }
+              try {
+                final state = context.read<StudyAppState>();
+                await state.deleteAccount(passwordController.text);
+                if (context.mounted) {
+                  Navigator.pop(context);
+                  Navigator.of(context).pushAndRemoveUntil(
+                    MaterialPageRoute(builder: (_) => const LoginScreen()),
+                    (route) => false,
+                  );
+                }
+              } catch (e) {
+                if (context.mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text('Failed to delete account: $e'),
+                      backgroundColor: Colors.red,
+                    ),
+                  );
+                }
+              }
             },
             child: const Text('Delete', style: TextStyle(color: Colors.red)),
           ),
@@ -794,14 +889,27 @@ class _SettingsScreenState extends State<SettingsScreen> {
             child: const Text('Cancel', style: TextStyle(color: Colors.grey)),
           ),
           TextButton(
-            onPressed: () {
-              Navigator.pop(context);
-              final state = context.read<StudyAppState>();
-              state.logout();
-              Navigator.of(context).pushAndRemoveUntil(
-                MaterialPageRoute(builder: (_) => const LoginScreen()),
-                (route) => false,
-              );
+            onPressed: () async {
+              try {
+                final state = context.read<StudyAppState>();
+                await state.logout();
+                if (context.mounted) {
+                  Navigator.pop(context);
+                  Navigator.of(context).pushAndRemoveUntil(
+                    MaterialPageRoute(builder: (_) => const LoginScreen()),
+                    (route) => false,
+                  );
+                }
+              } catch (e) {
+                if (context.mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text('Failed to log out: $e'),
+                      backgroundColor: Colors.red,
+                    ),
+                  );
+                }
+              }
             },
             child: const Text(
               'Log Out',

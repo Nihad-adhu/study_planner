@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import '../google_fonts.dart';
 import '../providers/app_state_provider.dart';
 import 'register_screen.dart';
@@ -27,6 +28,34 @@ class _LoginScreenState extends State<LoginScreen> {
     super.dispose();
   }
 
+  String _mapFirebaseError(dynamic error, {bool isGoogle = false}) {
+    if (error is FirebaseAuthException) {
+      switch (error.code) {
+        case 'invalid-credential':
+          return isGoogle
+              ? 'Google Sign-in failed. Please check your credentials or try again.'
+              : 'The email or password you entered is incorrect.';
+        case 'user-disabled':
+          return 'This user account has been disabled. Please contact support.';
+        case 'user-not-found':
+          return 'No account matches this email address.';
+        case 'wrong-password':
+          return 'Incorrect password. Please try again.';
+        case 'invalid-email':
+          return 'The email address format is invalid.';
+        case 'network-request-failed':
+          return 'Network error. Please check your connection and try again.';
+        case 'too-many-requests':
+          return 'Too many failed sign-in attempts. Please try again later.';
+        case 'sign-in-cancelled':
+          return 'Google Sign-in was cancelled by the user.';
+        default:
+          return error.message ?? 'An unexpected authentication error occurred.';
+      }
+    }
+    return error.toString();
+  }
+
   Future<void> _handleLogin() async {
     if (!_formKey.currentState!.validate()) return;
 
@@ -36,37 +65,27 @@ class _LoginScreenState extends State<LoginScreen> {
       _isLoading = true;
     });
 
-    // Simulate network/Firebase latency
-    await Future.delayed(const Duration(seconds: 1500 ~/ 1000));
-    if (!mounted) return;
-
-    setState(() {
-      _isLoading = false;
-    });
-
-    final email = _emailController.text.trim();
-
-    // Simulated Firebase Error Handling
-    if (email == 'error@lumina.edu') {
-      _showFirebaseError(
-        '[firebase_auth/user-not-found] There is no user record corresponding to this identifier. The user may have been deleted.',
+    try {
+      await state.login(
+        _emailController.text.trim(),
+        _passwordController.text,
       );
-      return;
-    } else if (email == 'wrongpass@lumina.edu') {
-      _showFirebaseError(
-        '[firebase_auth/wrong-password] The password is invalid or the user does not have a password.',
-      );
-      return;
-    }
 
-    // Success Mock
-    final username = email.split('@').first;
-    state.login(username, email);
-
-    if (mounted) {
-      Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: (_) => const DashboardScreen()),
-      );
+      if (mounted) {
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(builder: (_) => const DashboardScreen()),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        _showFirebaseError(_mapFirebaseError(e, isGoogle: false));
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
     }
   }
 
@@ -104,18 +123,23 @@ class _LoginScreenState extends State<LoginScreen> {
     setState(() {
       _isLoading = true;
     });
-    await Future.delayed(const Duration(seconds: 1));
-    if (!mounted) return;
-    setState(() {
-      _isLoading = false;
-    });
-
-    state.login('Google Scholar', 'google.user@lumina.edu');
-
-    if (mounted) {
-      Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: (_) => const DashboardScreen()),
-      );
+    try {
+      await state.signInWithGoogle();
+      if (mounted) {
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(builder: (_) => const DashboardScreen()),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        _showFirebaseError(_mapFirebaseError(e, isGoogle: true));
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
     }
   }
 

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import '../google_fonts.dart';
 import '../providers/app_state_provider.dart';
 import 'login_screen.dart';
@@ -41,6 +42,32 @@ class _RegisterScreenState extends State<RegisterScreen> {
     return true;
   }
 
+  String _mapFirebaseError(dynamic error, {bool isGoogle = false}) {
+    if (error is FirebaseAuthException) {
+      switch (error.code) {
+        case 'email-already-in-use':
+          return 'This email address is already in use by another account.';
+        case 'weak-password':
+          return 'The password is too weak. Please choose a stronger password.';
+        case 'invalid-email':
+          return 'The email address format is invalid.';
+        case 'network-request-failed':
+          return 'Network error. Please check your connection and try again.';
+        case 'operation-not-allowed':
+          return 'Registration is currently disabled for this app. Please contact support.';
+        case 'sign-in-cancelled':
+          return 'Google Sign-in was cancelled by the user.';
+        case 'invalid-credential':
+          return isGoogle
+              ? 'Google Sign-in failed. Please check your credentials or try again.'
+              : 'The email or password you entered is incorrect.';
+        default:
+          return error.message ?? 'An unexpected registration error occurred.';
+      }
+    }
+    return error.toString();
+  }
+
   Future<void> _handleRegister() async {
     if (!_formKey.currentState!.validate()) return;
 
@@ -50,21 +77,58 @@ class _RegisterScreenState extends State<RegisterScreen> {
       _isLoading = true;
     });
 
-    // Simulate Network Registration Delay
-    await Future.delayed(const Duration(seconds: 1500 ~/ 1000));
-    if (!mounted) return;
-
-    setState(() {
-      _isLoading = false;
-    });
-
-    state.register(_nameController.text.trim(), _emailController.text.trim());
-
-    if (mounted) {
-      Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: (_) => const DashboardScreen()),
+    try {
+      await state.register(
+        _nameController.text.trim(),
+        _emailController.text.trim(),
+        _passwordController.text,
       );
+
+      if (mounted) {
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(builder: (_) => const DashboardScreen()),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        _showFirebaseError(_mapFirebaseError(e, isGoogle: false));
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
     }
+  }
+
+  void _showFirebaseError(String message) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: const Color(0xFF213145),
+        title: Text(
+          'Authentication Error',
+          style: GoogleFonts.plusJakartaSans(
+            color: Colors.white,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        content: Text(message, style: GoogleFonts.inter(color: Colors.white70)),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text(
+              'OK',
+              style: GoogleFonts.plusJakartaSans(
+                color: const Color(0xFF6366F1),
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 
   void _handleGoogleSignUp() async {
@@ -72,18 +136,23 @@ class _RegisterScreenState extends State<RegisterScreen> {
     setState(() {
       _isLoading = true;
     });
-    await Future.delayed(const Duration(seconds: 1));
-    if (!mounted) return;
-    setState(() {
-      _isLoading = false;
-    });
-
-    state.register('Google Scholar', 'google.user@lumina.edu');
-
-    if (mounted) {
-      Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: (_) => const DashboardScreen()),
-      );
+    try {
+      await state.signInWithGoogle();
+      if (mounted) {
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(builder: (_) => const DashboardScreen()),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        _showFirebaseError(_mapFirebaseError(e, isGoogle: true));
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
     }
   }
 

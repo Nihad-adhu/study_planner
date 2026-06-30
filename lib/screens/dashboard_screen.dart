@@ -93,7 +93,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
               Icons.emoji_events_outlined,
               color: isDark ? Colors.white70 : Colors.black54,
             ),
-            selectedIcon: const Icon(Icons.emoji_events, color: Color(0xFF6366F1)),
+            selectedIcon: const Icon(
+              Icons.emoji_events,
+              color: Color(0xFF6366F1),
+            ),
             label: 'Rewards',
           ),
         ],
@@ -155,7 +158,9 @@ class DashboardHomeTab extends StatelessWidget {
                     onPressed: () {
                       Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (_) => const NotificationsScreen()),
+                        MaterialPageRoute(
+                          builder: (_) => const NotificationsScreen(),
+                        ),
                       );
                     },
                     icon: Icon(
@@ -236,7 +241,9 @@ class DashboardHomeTab extends StatelessWidget {
                         value: totalTasks > 0 ? progress : 0.0,
                         minHeight: 8,
                         backgroundColor: Colors.white.withValues(alpha: 0.2),
-                        valueColor: const AlwaysStoppedAnimation<Color>(Colors.white),
+                        valueColor: const AlwaysStoppedAnimation<Color>(
+                          Colors.white,
+                        ),
                       ),
                     ),
                   ],
@@ -539,8 +546,9 @@ class DashboardHomeTab extends StatelessWidget {
                               ),
                               padding: EdgeInsets.zero,
                               onSelected: (val) {
-                                if (val == 'edit')
+                                if (val == 'edit') {
                                   showEditTaskSheet(context, task);
+                                }
                                 if (val == 'delete') state.deleteTask(task.id);
                               },
                               itemBuilder: (context) => [

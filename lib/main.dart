@@ -1,19 +1,40 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'google_fonts.dart';
 import 'providers/app_state_provider.dart';
-import 'screens/login_screen.dart';
+import 'screens/auth_wrapper.dart';
+
+import 'screens/firebase_error_screen.dart';
+import 'firebase_options.dart';
+
+bool isFirebaseConfigured = false;
+String firebaseInitializationError = '';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  
+  try {
+    await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform,
+    );
+    AuthService.isFirebaseInitialized = true;
+    isFirebaseConfigured = true;
+    debugPrint('[Firebase] Initialized successfully with options.');
+  } catch (e) {
+    AuthService.isFirebaseInitialized = false;
+    isFirebaseConfigured = false;
+    firebaseInitializationError = e.toString();
+    debugPrint('[Firebase] Initialization failed: $e');
+  }
 
   final prefs = await SharedPreferences.getInstance();
 
   runApp(
     ChangeNotifierProvider(
       create: (_) => StudyAppState(prefs),
-      child: StudyPlannerApp(),
+      child: const StudyPlannerApp(),
     ),
   );
 }
@@ -75,7 +96,9 @@ class StudyPlannerApp extends StatelessWidget {
       theme: lightTheme,
       darkTheme: darkTheme,
       themeMode: themeMode,
-      home: const LoginScreen(),
+      home: isFirebaseConfigured
+          ? const AuthWrapper()
+          : FirebaseConfigurationErrorScreen(error: firebaseInitializationError),
     );
   }
 }

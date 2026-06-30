@@ -279,10 +279,12 @@ class TaskDetailScreen extends StatelessWidget {
                         ),
                         padding: EdgeInsets.zero,
                         onSelected: (val) {
-                          if (val == 'edit')
+                          if (val == 'edit') {
                             showEditSubTaskDialog(context, task, sub);
-                          if (val == 'delete')
+                          }
+                          if (val == 'delete') {
                             state.deleteSubTask(task.id, sub.id);
+                          }
                         },
                         itemBuilder: (context) => [
                           const PopupMenuItem(

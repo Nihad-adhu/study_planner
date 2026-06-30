@@ -48,6 +48,7 @@ class StudyAppState extends ChangeNotifier {
   StudyAppState(this._prefs) {
     _initializeData();
     _loadThemeMode();
+    authService.addListener(notifyListeners);
     debugPrint(
       '[StudyAppState] Constructed. themeMode=$_themeMode isDarkMode=$isDarkMode',
     );
@@ -223,23 +224,38 @@ class StudyAppState extends ChangeNotifier {
   String? get email => authService.email;
   bool get isLoggedIn => authService.isLoggedIn;
 
-  void login(String usernameVal, String emailVal) {
-    authService.login(usernameVal, emailVal);
+  Future<void> signInWithGoogle() async {
+    await authService.signInWithGoogle();
     notifyListeners();
   }
 
-  void register(String usernameVal, String emailVal) {
-    authService.register(usernameVal, emailVal);
+  Future<void> login(String emailVal, String passwordVal) async {
+    await authService.login(emailVal, passwordVal);
     notifyListeners();
   }
 
-  void logout() {
-    authService.logout();
+  Future<void> register(String usernameVal, String emailVal, String passwordVal) async {
+    await authService.register(usernameVal, emailVal, passwordVal);
     notifyListeners();
   }
 
-  void editProfile(String newUsername, String newEmail) {
-    authService.editProfile(newUsername, newEmail);
+  Future<void> logout() async {
+    await authService.logout();
+    notifyListeners();
+  }
+
+  Future<void> editProfile(String newUsername, String newEmail) async {
+    await authService.editProfile(newUsername, newEmail);
+    notifyListeners();
+  }
+
+  Future<void> changePassword(String currentPassword, String newPassword) async {
+    await authService.changePassword(currentPassword, newPassword);
+    notifyListeners();
+  }
+
+  Future<void> deleteAccount(String password) async {
+    await authService.deleteAccount(password);
     notifyListeners();
   }
 
